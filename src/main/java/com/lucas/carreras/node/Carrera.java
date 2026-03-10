@@ -33,11 +33,21 @@ public class Carrera {
     @Relationship(type = "DICTA")
     public Set<Dicta> materias;
 
+    @Relationship(type = "APLICA")
+    public Set<Requerimiento> requerimientos;
+
     public void dicta(Materia materia, Integer numeracion, Integer cuatrimestre) {
         if (materias == null) {
             materias = new HashSet<>();
         }
         materias.add(new Dicta(materia, numeracion, cuatrimestre));
+    }
+
+    public void aplica(Requerimiento requerimiento) {
+        if (requerimientos == null) {
+            requerimientos = new HashSet<>();
+        }
+        requerimientos.add(requerimiento);
     }
 
     public String toString() {

@@ -38,4 +38,8 @@ public class Dicta {
     public Integer getCuatrimestre() {
         return this.cuatrimestre;
     }
+
+    public Materia getMateria() {
+        return this.materia;
+    }
 }

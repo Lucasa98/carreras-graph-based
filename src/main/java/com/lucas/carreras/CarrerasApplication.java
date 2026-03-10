@@ -14,8 +14,10 @@ import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 
 import com.lucas.carreras.node.Carrera;
 import com.lucas.carreras.node.Materia;
+import com.lucas.carreras.node.Requerimiento;
 import com.lucas.carreras.repository.CarreraRepository;
 import com.lucas.carreras.repository.MateriaRepository;
+import com.lucas.carreras.repository.RequerimientoRepository;
 
 @SpringBootApplication
 @EnableNeo4jRepositories
@@ -28,10 +30,11 @@ public class CarrerasApplication {
 	}
 
 	@Bean
-	CommandLineRunner demo(CarreraRepository carreraRepository, MateriaRepository materiaRepository) {
+	CommandLineRunner demo(CarreraRepository carreraRepository, MateriaRepository materiaRepository, RequerimientoRepository requerimientoRepository) {
 		return args -> {
 			carreraRepository.deleteAll();
 			materiaRepository.deleteAll();
+			requerimientoRepository.deleteAll();
 
 			// Carreras
 			Carrera inf = new Carrera("Ingenieria en Informatica", 2006);
@@ -54,36 +57,60 @@ public class CarrerasApplication {
 			log.info("Materias:");
 			materias.stream().forEach(materia -> log.info("\t" + materia.toString()));
 
-			// guardar carreras y materias
-			carreraRepository.save(inf);
-			carreraRepository.save(amb);
-			materiaRepository.save(calculo1);
-			materiaRepository.save(calculo2);
-			materiaRepository.save(quimica);
-			materiaRepository.save(programacion);
+			// GUARDAR carreras y materias
+			inf = carreraRepository.save(inf);
+			amb = carreraRepository.save(amb);
+			calculo1 = materiaRepository.save(calculo1);
+			calculo2 = materiaRepository.save(calculo2);
+			quimica = materiaRepository.save(quimica);
+			programacion = materiaRepository.save(programacion);
 
-			// Relacionar materias y carreras
-			inf = carreraRepository.findByNombre(inf.getNombre());
+			// RELACIONAR materias y carreras
 			inf.dicta(calculo1, 6, 2);
 			inf.dicta(calculo2, 10, 3);
 			inf.dicta(programacion, 4, 1);
-			amb = carreraRepository.findByNombre(amb.getNombre());
 			amb.dicta(calculo1, 6, 2);
 			amb.dicta(calculo2, 10, 3);
 			amb.dicta(quimica, 3, 1);
 
-			carreraRepository.save(inf);
-			carreraRepository.save(amb);
+			inf = carreraRepository.save(inf);
+			amb = carreraRepository.save(amb);
+
+			// RELACIONAR correlativas
+			Requerimiento calculo2CursarInf = new Requerimiento();
+			calculo2CursarInf.necesita(calculo1, "REGULAR");
+			calculo2CursarInf.necesita(programacion, "REGULAR");
+			Requerimiento calculo2CursarAmb = new Requerimiento();
+			calculo2CursarAmb.necesita(calculo1, "REGULAR");
+			calculo2CursarAmb.necesita(quimica, "REGULAR");
+
+			// GUARDAR requerimientos
+			calculo2CursarInf = requerimientoRepository.save(calculo2CursarInf);
+			calculo2CursarAmb = requerimientoRepository.save(calculo2CursarAmb);
+
+			// RELACIONAR requerimientos
+			calculo2.requiere(calculo2CursarInf, "CURSAR");
+			calculo2.requiere(calculo2CursarAmb, "CURSAR");
+			calculo2 = materiaRepository.save(calculo2);
+			inf.aplica(calculo2CursarInf);
+			amb.aplica(calculo2CursarAmb);
+			inf = carreraRepository.save(inf);
+			amb = carreraRepository.save(amb);
 
 			// Mostrar materias por cada carrera
-			inf = carreraRepository.findByNombre(inf.getNombre());
-			amb = carreraRepository.findByNombre(amb.getNombre());
 			carreras = Arrays.asList(inf, amb);
 			log.info("Materias por carrera...");
 			carreras.stream().forEach(carrera -> {
 				log.info(carrera.toString());
 				carrera.materias.stream().forEach(materiaDictada -> {
 					log.info("\t" + materiaDictada.toString());
+					Requerimiento req = requerimientoRepository.findByMateriaAndCarreraAndType(
+						materiaDictada.getMateria().getNombre(),
+						carrera.getNombre(),
+						carrera.getPlan(),
+						"CURSAR"
+					).orElse(null);
+					if (req != null) log.info("\t \t(" + req.getId() + ") PARA CURSAR: " + req.toString());
 				});
 			});
 		};
