@@ -12,6 +12,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 
+import com.lucas.carreras.node.Carrera;
+import com.lucas.carreras.node.Materia;
+import com.lucas.carreras.repository.CarreraRepository;
+import com.lucas.carreras.repository.MateriaRepository;
+
 @SpringBootApplication
 @EnableNeo4jRepositories
 public class CarrerasApplication {

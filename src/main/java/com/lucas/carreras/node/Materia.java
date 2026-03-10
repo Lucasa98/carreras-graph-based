@@ -1,4 +1,4 @@
-package com.lucas.carreras;
+package com.lucas.carreras.node;
 
 import java.util.Collections;
 import java.util.HashSet;

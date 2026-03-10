@@ -1,4 +1,4 @@
-package com.lucas.carreras;
+package com.lucas.carreras.node;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -8,6 +8,8 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
+
+import com.lucas.carreras.relation.Dicta;
 
 @Node
 public class Carrera {
